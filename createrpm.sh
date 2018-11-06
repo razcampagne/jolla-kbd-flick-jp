@@ -1,39 +1,34 @@
 #!/bin/sh
-##############################################
-#
-# createrpm.sh
-#
-# This script create the langupack rpm.
-#
-##############################################
 
-PKGNAME=jolla-kbd-flick-jp
+EXECDIR=$(cd "$(dirname "$0")" && pwd)
+cd "$EXECDIR" || exit 1
 
-if [ x"${TOPDIR}" == x ]; then
-    TOPDIR=$HOME/rpmbuild
-fi
+PKGNAME=$(basename "$EXECDIR")
 
-if [ ! -d ${TOPDIR} ]; then
-    rm -rf ${TOPDIR}
-    mkdir ${TOPDIR}
-fi
+[ -z "$TOPDIR" ] && {
+    TOPDIR="$HOME/rpmbuild"
+}
 
-for n in SOURCES RPMS SRPMS BUILD BUILDROOT SPECS
+for dir in SOURCES RPMS SRPMS BULID BUILDROOT SPECS
 do
-    if [ ! -d ${TOPDIR}/$n ]; then
-                mkdir ${TOPDIR}/$n
-    fi  
+    mkdir -p "$TOPDIR/$dir"
 done
 
-SOURCEFILE=${TOPDIR}/SOURCES/${PKGNAME}.tar.gz
+SOURCEFILE="$TOPDIR/SOURCES/$PKGNAME.tar.gz"
 
-if [ ! -e ${SOURCEFILE} ]; then
-    cd ..
-    tar cvfz ${TOPDIR}/SOURCES/${PKGNAME}.tar.gz --exclude rpmbuild --exclude .git --exclude diff --exclude src/KeyboardBase_Flick.qml ./${PKGNAME}
-    cd ${PKGNAME}
-fi
+cd ../ || exit 1
+tar czvf "$SOURCEFILE" \
+    --exclude rpmbuild \
+    --exclude RPMS \
+    --exclude .git \
+    --exclude .gitignore \
+    --exclude patch/unified_diff.patch \
+    --exclude Makefile \
+    --exclude documentation.list \
+    "./$PKGNAME"
+cd "$EXECDIR" || exit 1
 
-rpmbuild -ba rpm/jolla-kbd-flick-jp.spec --target noarch
+rpmbuild -ba "rpm/$PKGNAME.spec" --target noarch
 
-ls -l ${TOPDIR}/RPMS/noarch
-ls -l ${TOPDIR}/SRPMS
+ls -l "$TOPDIR/RPMS/noarch"
+ls -l "$TOPDIR/SRPMS"
