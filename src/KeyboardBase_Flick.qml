@@ -34,7 +34,7 @@ import com.jolla.keyboard 1.0
 import org.nemomobile.configuration 1.0
 import "touchpointarray.js" as ActivePoints
 
-Item {
+SwipeGestureArea {
     id: keyboard
 
     property Item layout
@@ -53,6 +53,7 @@ Item {
                                           && (typeof inputHandler.preedit !== "string"
                                               || inputHandler.preedit.length === 0))
     readonly property bool isShiftLocked: shiftState === ShiftState.LockedShift
+    readonly property alias languageSelectionPopupVisible: languageSelectionPopup.visible
 
     property bool inSymView
     property bool inSymView2
@@ -68,17 +69,29 @@ Item {
     property bool closeSwipeActive
     property int closeSwipeThreshold: Math.max(height*.3, Theme.itemSizeSmall)
 
-    property QtObject emptyAttributes: Item {
+    property QtObject nextLayoutAttributes: QtObject {
         property bool isShifted
         property bool inSymView
         property bool inSymView2
         property bool isShiftLocked
         property bool chineseOverrideForEnter
+
+        function update(layout) {
+            // Figure out what state we want to animate the next layout in
+            isShifted = keyboard.shouldUseAutocaps(layout)
+            inSymView = false
+            inSymView2 = false
+            isShiftLocked = false
+            chineseOverrideForEnter = keyboard.chineseOverrideForEnter
+        }
     }
 
     // Can be changed to PreeditTestHandler to have another mode of input
     property Item inputHandler: InputHandler {
     }
+
+    readonly property bool swipeGestureIsSafe: !releaseTimer.running
+    property bool isFlicking: flicker.isFlicking
 
     height: layout ? layout.height : 0
     onLayoutChanged: if (layout) layout.parent = keyboard
@@ -97,6 +110,11 @@ Item {
         id: popper
         z: 10
         target: lastPressedKey
+        onExpandedChanged: {
+            if (expanded) {
+                keyboard.cancelGesture()
+            }
+        }
     }
 
     LanguageSelectionPopup {
@@ -107,6 +125,11 @@ Item {
     Timer {
         id: pressTimer
         interval: 500
+    }
+
+    Timer {
+        id: releaseTimer
+        interval: 300
     }
 
     Timer {
@@ -240,6 +263,7 @@ Item {
                 popper.setActiveCell(point.x, point.y)
             } else if (flicker.enabled) {
                 flicker.setIndex(point)
+                flicker.isFlicking = true
             } else {
                 updatePressedKey(point)
             }
@@ -287,6 +311,8 @@ Item {
     }
 
     function handleReleased(touchPoints) {
+        releaseTimer.restart()
+
         if (languageSelectionPopup.visible) {
             if (languageSelectionPopup.opening) {
                 languageSelectionPopup.hide()
@@ -314,6 +340,7 @@ Item {
             } else {
                 if (flicker.enabled) {
                     flicker.setIndex(point)
+                    flicker.isFlicking = false
                 }
                 triggerKey(point.pressedKey)
             }
@@ -404,12 +431,13 @@ Item {
         deadKeyAccent = ""
     }
 
-    function applyAutocaps() {
+    function shouldUseAutocaps(layout) {
         if (MInputMethodQuick.surroundingTextValid
                 && MInputMethodQuick.contentType === Maliit.FreeTextContentType
                 && MInputMethodQuick.autoCapitalizationEnabled
                 && !MInputMethodQuick.hiddenText
                 && layout && layout.type === "") {
+
             var position = MInputMethodQuick.cursorPosition
             var text = MInputMethodQuick.surroundingText.substring(0, position)
 
@@ -417,13 +445,17 @@ Item {
                     || (position == 1 && text[0] === " ")
                     || (position >= 2 && text[position - 1] === " "
                         && ".?!".indexOf(text[position - 2]) >= 0)) {
-                autocaps = true
+                return true
             } else {
-                autocaps = false
+                return false
             }
         } else {
-            autocaps = false
+            return false
         }
+    }
+
+    function applyAutocaps() {
+        autocaps = shouldUseAutocaps(layout)
     }
 
     function cycleShift() {
