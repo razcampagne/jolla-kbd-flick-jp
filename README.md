@@ -17,4 +17,4 @@ Please reference official [tutorial](https://sailfishos.org/develop/tutorials/bu
 
 Then rpm package will be deployed in `RPMS` directory. 
 
-If you want to install to Sailfish OS mobiles, You can transfer easily by scp (ex. `scp RPMS/jolla-kbd-flick-jp-0.0.7-1.noarch.rpm nemo@192.168.2.15:~/Downloads/`). However, it requires enable developer mode
+If you want to install to Sailfish OS mobiles, You can transfer easily by scp (ex. `scp RPMS/jolla-kbd-flick-jp-1.0.0-1.noarch.rpm nemo@192.168.2.15:~/Downloads/`). However, it requires enable developer mode
