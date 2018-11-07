@@ -88,11 +88,6 @@ Item {
     // we can't rely on point values anymore
     onHeightChanged: closeSwipeActive = false
 
-    Flicker {
-        id: flicker
-        target: lastPressedKey
-    }
-
     Popper {
         id: popper
         z: 10
@@ -215,7 +210,7 @@ Item {
             point.x = incomingPoint.x
             point.y = incomingPoint.y
 
-            if (ActivePoints.array.length === 1 && closeSwipeActive && pressTimer.running && !flicker.enabled) {
+            if (ActivePoints.array.length === 1 && closeSwipeActive && pressTimer.running) {
                 var yDiff = point.y - point.startY
                 silenceFeedback = (yDiff > Math.abs(point.x - point.startX))
 
@@ -238,8 +233,6 @@ Item {
 
             if (popper.expanded && point.pressedKey === lastPressedKey) {
                 popper.setActiveCell(point.x, point.y)
-            } else if (flicker.enabled) {
-                flicker.setIndex(point)
             } else {
                 updatePressedKey(point)
             }
@@ -312,9 +305,6 @@ Item {
                 popper.release()
                 point.pressedKey.pressed = false
             } else {
-                if (flicker.enabled) {
-                    flicker.setIndex(point)
-                }
                 triggerKey(point.pressedKey)
             }
 
