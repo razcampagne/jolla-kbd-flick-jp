@@ -17,7 +17,7 @@ Please refer to the official [tutorial](https://sailfishos.org/develop/tutorials
 3. Change directory into the repo (ex. `cd share/jolla-kbd-flick-jp .`). `/home/mersdk/share` is a shared directory on the Sailfish OS Build Engine which provides access to the host file system
 4. Build the package with `mb2 build`
 
-### With createrpm.sh (Build on Sailfish OS devices itself)
+### With createrpm.sh (Build on Sailfish OS devices themselves)
 
 #### Requirements
 
@@ -26,8 +26,8 @@ Please refer to the official [tutorial](https://sailfishos.org/develop/tutorials
 #### Instructions
 
 1. Launch a Terminal
-2. Refresh a package information `devel-su pkcon refresh`
-3. Install packages which need to the build `devel-su pkcon install rpm-build make qt5-qmake`
+2. Refresh package information `devel-su pkcon refresh`
+3. Install packages which are required for building `devel-su pkcon install rpm-build make qt5-qmake`
 4. Clone the repo (ex. `git clone https://github.com/sfos-ja/jolla-kbd-flick-jp.git`)
 5. Change directory into the repo (ex. `cd jolla-kbd-flick-jp`)
 6. Build the package with `./createrpm.sh`
