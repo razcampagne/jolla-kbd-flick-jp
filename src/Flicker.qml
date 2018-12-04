@@ -33,7 +33,6 @@ QtObject {
     id: flicker
     property Item target: null
     property bool enabled
-    property bool isFlicking: false
 
     onTargetChanged: {
         enabled = false
