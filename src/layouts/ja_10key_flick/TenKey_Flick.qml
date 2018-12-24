@@ -171,7 +171,6 @@ KeyBase {
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.paddingSmall
         z: -1
         color: Theme.highlightBackgroundColor
         opacity: 0.5
