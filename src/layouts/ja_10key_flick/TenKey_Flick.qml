@@ -122,7 +122,7 @@ KeyBase {
                 ? currentText.charAt(0)
                 : (currentText.charAt(0) == " "
                     ? ""
-                    : (symbolOnly && attributes.inSymView
+                    : (symbolOnly && attributes.inSymView && !flickAssistConfig.value
                         ? symView
                         : (!portraitMode || !flickAssistConfig.value
                             ? ((attributes.isShifted && !attributes.inSymView
@@ -145,7 +145,7 @@ KeyBase {
             color: pressed ? Theme.highlightColor : Theme.primaryColor
             opacity: (!pressed && attributes.isShifted && captionShifted === " ") ? .8 : .6
             text: !pressed && attributes.inSymView && symView.length > 0
-                ? (symbolOnly
+                ? (flickAssistConfig.value || symbolOnly
                     ? ""
                     : symView.slice(1))
                 : (!pressed && attributes.isShifted && captionShifted === " "
@@ -159,6 +159,7 @@ KeyBase {
         AssistLabel {
             visible: portraitMode && !pressed && flickAssistConfig.value
             keyIndex: index + 1
+            labelText: currentText
         }
     }
 

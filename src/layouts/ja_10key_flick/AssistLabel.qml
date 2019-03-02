@@ -5,6 +5,7 @@ import com.jolla.keyboard 1.0
 Text {
     property int keyIndex
     property real offset: (parent.width - Theme.paddingMedium * 1.5) / 3
+    property string labelText
     visible: portraitMode && !pressed
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
@@ -27,13 +28,7 @@ Text {
         ? Theme.fontSizeSmall
         : Theme.fontSizeExtraSmall
     color: pressed ? Theme.highlightColor : Theme.secondaryColor
-    text: portraitMode && !attributes.inSymView && flickerIndex == 0
-        ? attributes.isShifted
-            ? (textCaptState && captionShifted !== " "
-                ? captionShifted2.charAt(keyIndex)
-                : (captionShifted !== " "
-                    ? captionShifted.charAt(keyIndex)
-                    : ""))
-            : flickerText.charAt(keyIndex)
+    text: portraitMode && flickerIndex == 0
+        ? labelText.charAt(keyIndex)
         : ""
 }
