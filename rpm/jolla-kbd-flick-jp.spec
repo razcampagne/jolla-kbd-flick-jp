@@ -1,5 +1,5 @@
 Name:       jolla-kbd-flick-jp
-Version:    1.0.0
+Version:    0.07
 Release:    1%{?dist}
 Summary:    Japanese flick layout for Sailfish OS
 License:    LGPLv2
@@ -45,6 +45,7 @@ fi
 /usr/sbin/patchmanager -u %{name} || true
 
 %changelog
-
-* Thu Nov 1 2018 Topias Vainio <toxip@disroot.org> 0.07-1
-- Fixed patch for Lemmenjoki 3.0.0 update
+* Sun Mar 3 2019 Topias Vainio <toxip@disroot.org> 1.0.0-1
+- Added assisting labels and poppers to ease users unfamiliar with flick keyboards
+- Added settings entries for assist labels and poppers under text input
+- Refactoring and code cleanup
