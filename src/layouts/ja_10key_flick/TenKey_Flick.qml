@@ -31,6 +31,7 @@
 import QtQuick 2.0
 import com.jolla.keyboard 1.0
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 import ".."
 import "../.."
 
@@ -44,7 +45,7 @@ KeyBase {
 
     property string flickerText
     property string captionShifted
-    property string captionShifted2
+    property string captionShifted2: captionShifted
     property string symView
     property string symView2
     property int separator: SeparatorState.AutomaticSeparator
@@ -67,7 +68,26 @@ KeyBase {
         onInSymViewChanged: updateKeyString()
     }
 
-    showPopper: false
+    Connections {
+        target: main
+        onTextCaptStateChanged: updateKeyString()
+    }
+
+    ConfigurationValue {
+        id: flickPopperConfig
+
+        key: "/sailfish/text_input/flick_popper_enabled"
+        defaultValue: false
+    }
+
+    ConfigurationValue {
+        id: flickAssistConfig
+
+        key: "/sailfish/text_input/flick_assist_label_enabled"
+        defaultValue: false
+    }
+
+    showPopper: flickPopperConfig.value ? false : true
     keyType: KeyType.CharacterKey
     text: currentText.charAt(flickerIndex) === ""
         ? currentText.charAt(0)
@@ -86,27 +106,31 @@ KeyBase {
             font.family: Theme.fontFamily
             font.pixelSize: !pressed && symbolOnly
                 ? Theme.fontSizeExtraSmall
-                : (!portraitMode || attributes.isShifted || attributes.inSymView)
+                : (!portraitMode || attributes.isShifted || attributes.inSymView
+                || !flickAssistConfig.value)
                     ? Theme.fontSizeLarge
                     : (flickerIndex > 0
                         ? Theme.fontSizeExtraLarge
                         : (!pressed
                             ? Theme.fontSizeMedium
-                            : Theme.fontSizeExtraLarge))
+                            : Theme.fontSizeHuge))
             font.letterSpacing: (portraitMode === true && !attributes.isShifted && !attributes.inSymView && symbolOnly && flickerText.length > 3) ? -10 : 0
             color: !pressed || (flickerIndex == 0 || currentText.charAt(flickerIndex) == "")
                 ? Theme.primaryColor
                 : Theme.highlightColor
-            text: pressed
+            text: pressed && flickPopperConfig.value
                 ? currentText.charAt(0)
                 : (currentText.charAt(0) == " "
                     ? ""
                     : (symbolOnly && attributes.inSymView
                         ? symView
-                        : (!portraitMode
-                            ? ((attributes.isShifted && !attributes.inSymView) || symbolOnly
+                        : (!portraitMode || !flickAssistConfig.value
+                            ? ((attributes.isShifted && !attributes.inSymView
+                            && !pressed) || symbolOnly
                                 ? currentText
-                                : currentText.charAt(flickerIndex))
+                                : currentText.charAt(flickerIndex) === ""
+                                    ? currentText.charAt(0)
+                                    : currentText.charAt(flickerIndex))
                             : currentText.charAt(0))))
 
         }
@@ -133,6 +157,7 @@ KeyBase {
     Repeater {
         model: 4
         AssistLabel {
+            visible: portraitMode && !pressed && flickAssistConfig.value
             keyIndex: index + 1
         }
     }

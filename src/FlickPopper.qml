@@ -29,16 +29,24 @@
 import QtQuick 2.0
 import com.jolla.keyboard 1.0
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 
 Rectangle {
     id: popper
+
+    ConfigurationValue {
+        id: flickPopperConfig
+
+        key: "/sailfish/text_input/flick_popper_enabled"
+        defaultValue: false
+    }
     
     opacity: 0
     color: Qt.darker(Theme.highlightBackgroundColor, 1.2)
     height: geometry.popperWidth
     width: geometry.popperWidth
     radius: geometry.popperRadius
-    visible: popperText === "" ? false : true
+    visible: flickPopperConfig.value && popperText !== "" ? true : false
 
     property Item target: null
     property int popperIndex
