@@ -12,19 +12,28 @@ KeyboardLayout {
 
     property bool shiftShifted: false
     property bool textCaptState: false
+    property int flickKeyWidth
+    property int flickKeyHeight
+    property double flickKeyMultiplier
 
     splitSupported: false
 
-    height: portraitMode == false ? geometry.keyHeightLandscape * 4
-                     :  geometry.keyHeightPortrait * 4
+    flickKeyMultiplier: portraitMode == false ? 5.075 : 4.775
+    /* Really temporal fix. I think there world be better solution... */
+
+    flickKeyWidth: main.width / 5
+    flickKeyHeight: main.height / flickKeyMultiplier
+
+    height: portraitMode == false ? geometry.keyHeightLandscape * flickKeyMultiplier
+                     :  geometry.keyHeightPortrait * flickKeyMultiplier
     width: portraitMode == false ? geometry.keyboardWidthLandscape
                      : geometry.keyboardWidthPortrait
 
     Row {
         TenKey_CustomArrowKey {
             direction: "left"
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
             separator: true
         }
         TenKey_Flick {
@@ -56,16 +65,16 @@ KeyboardLayout {
         TenKey_CustomArrowKey {
             separator: false
             direction: "right"
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
         }
     }
 
     Row {
         TenKey_SymbolKey {
             caption: attributes.inSymView ? "\u304B\u306A" : "1&"
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
 //            visible: SeparatorState.VisibleSeparator
             separator: true
         }
@@ -98,21 +107,21 @@ KeyboardLayout {
         }
         TenKey_CustomArrowKey {
             direction: "up"
-            implicitWidth: main.width / 10
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth / 2
+            implicitHeight: flickKeyHeight
         }
         TenKey_CustomArrowKey {
             direction: "down"
             separator: false
-            implicitWidth: main.width / 10
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth / 2
+            implicitHeight: flickKeyHeight
         }
     }
 
     Row {
         TenKey_ShiftKey {
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
             separator: true
 //            implicitSeparator: true
         }
@@ -144,8 +153,8 @@ KeyboardLayout {
             accentsShifted: ""
         }
         BackspaceKey {
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
 //            visible: SeparatorState.HiddenSeparator
 //            separator: false
         }
@@ -154,8 +163,8 @@ KeyboardLayout {
     Row {
         SpacebarKey {
 //            icon.source: "image://theme/icon-s-sync"
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
             separator: SeparatorState.AutomaticSeparator
             implicitSeparator: true
             Image {
@@ -194,8 +203,8 @@ KeyboardLayout {
             symbolOnly: true
         }
         EnterKey {
-            implicitWidth: main.width / 5
-            implicitHeight: main.height / 4
+            implicitWidth: flickKeyWidth
+            implicitHeight: flickKeyHeight
 //            visible: SeparatorState.HiddenSeparator
 //            separator: false
             Rectangle {
