@@ -1,1 +1,0 @@
-../../../../../../src/jolla-keyboard.qml
