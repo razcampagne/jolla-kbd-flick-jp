@@ -14,13 +14,12 @@ KeyboardLayout {
     property bool textCaptState: false
     property int flickKeyWidth
     property int flickKeyHeight
-    property double flickKeyMultiplier
 
     splitSupported: false
 
     flickKeyWidth: main.width / 5
     flickKeyHeight: portraitMode ? geometry.keyHeightPortrait : geometry.keyHeightLandscape
-    
+
     height: flickKeyHeight * 4 + Theme.itemSizeSmall
     width: portraitMode ? geometry.keyboardWidthPortrait
                         : geometry.keyboardWidthLandscape
