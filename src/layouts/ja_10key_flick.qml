@@ -2,7 +2,7 @@
 // Contact: Pekka Vuorela <pekka.vuorela@jollamobile.com>
 
 import QtQuick 2.0
-import Sailfish.Silica 1.0 as Silica
+import Sailfish.Silica 1.0
 import "./ja_10key_flick"
 import ".."
 
@@ -18,16 +18,12 @@ KeyboardLayout {
 
     splitSupported: false
 
-    flickKeyMultiplier: portraitMode == false ? 5.075 : 4.775
-    /* Really temporal fix. I think there world be better solution... */
-
     flickKeyWidth: main.width / 5
-    flickKeyHeight: main.height / flickKeyMultiplier
-
-    height: portraitMode == false ? geometry.keyHeightLandscape * flickKeyMultiplier
-                     :  geometry.keyHeightPortrait * flickKeyMultiplier
-    width: portraitMode == false ? geometry.keyboardWidthLandscape
-                     : geometry.keyboardWidthPortrait
+    flickKeyHeight: portraitMode ? geometry.keyHeightPortrait : geometry.keyHeightLandscape
+    
+    height: flickKeyHeight * 4 + Theme.itemSizeSmall
+    width: portraitMode ? geometry.keyboardWidthPortrait
+                        : geometry.keyboardWidthLandscape
 
     Row {
         TenKey_CustomArrowKey {
