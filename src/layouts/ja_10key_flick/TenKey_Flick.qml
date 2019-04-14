@@ -31,6 +31,7 @@
 import QtQuick 2.0
 import com.jolla.keyboard 1.0
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 import ".."
 import "../.."
 
@@ -44,30 +45,57 @@ KeyBase {
 
     property string flickerText
     property string captionShifted
-    property string captionShifted2
+    property string captionShifted2: captionShifted
     property string symView
     property string symView2
     property int separator: SeparatorState.AutomaticSeparator
     property bool implicitSeparator: true // set by layouting
-//    property bool separator: true
     property bool showHighlight: true
     property string accents
     property string accentsShifted
     property bool fixedWidth
     property alias useBoldFont: keyText.font.bold
     property alias  _keyText: keyText.text
+    property string currentText: flickerText
 
     property int flickerIndex: 0
     property bool enableFlicker: true
     property bool symbolOnly: false
 
-//    showPopper: false
+    Connections {
+        target: attributes
+        onIsShiftedChanged: updateKeyString()
+        onInSymViewChanged: updateKeyString()
+    }
 
+    Connections {
+        target: main
+        onTextCaptStateChanged: updateKeyString()
+    }
+
+    ConfigurationValue {
+        id: flickPopperConfig
+
+        key: "/sailfish/text_input/flick_popper_enabled"
+        defaultValue: false
+    }
+
+    ConfigurationValue {
+        id: flickAssistConfig
+
+        key: "/sailfish/text_input/flick_assist_label_enabled"
+        defaultValue: false
+    }
+
+    showPopper: flickPopperConfig.value ? false : true
     keyType: KeyType.CharacterKey
-    text: keyText.text.length === 1 ? keyText.text : (keyText.text.charAt(flickerIndex) ? keyText.text.charAt(flickerIndex) : keyText.text.chaAt(0))
+    text: currentText.charAt(flickerIndex) === ""
+        ? currentText.charAt(0)
+        : currentText.charAt(flickerIndex)
     caption: text
 
     Column {
+        id: mainLabel
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         Text {
@@ -76,11 +104,34 @@ KeyBase {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.family: Theme.fontFamily
-//            font.pixelSize: !pressed && symbolOnly ? Theme.fontSizeExtraSmall : Theme.fontSizeMedium
-            font.pixelSize: !pressed && symbolOnly ? Theme.fontSizeExtraSmall : (portraitMode === false || attributes.isShifted || attributes.inSymView) ? Theme.fontSizeMedium : Theme.fontSizeLarge
+            font.pixelSize: !pressed && symbolOnly
+                ? Theme.fontSizeExtraSmall
+                : !portraitMode || !flickAssistConfig.value
+                    ? Theme.fontSizeLarge
+                    : flickerIndex > 0
+                        ? Theme.fontSizeExtraLarge
+                        : !pressed
+                            ? Theme.fontSizeMedium
+                            : Theme.fontSizeHuge
             font.letterSpacing: (portraitMode === true && !attributes.isShifted && !attributes.inSymView && symbolOnly && flickerText.length > 3) ? -10 : 0
-            color: pressed ? Theme.highlightColor : Theme.primaryColor
-            text: attributes.inSymView && symView.length > 0 ? (!pressed ? (symbolOnly ? symView : symView.charAt(0)) : (symView.charAt(flickerIndex) !== "" ? symView.charAt(flickerIndex) : symView.charAt(0))) : (attributes.isShifted ? (!pressed ? (captionShifted === " " ? "" : (textCaptState && captionShifted2 !== "" ? captionShifted2 : captionShifted)) : (textCaptState && captionShifted2 !== "" ? (captionShifted2.charAt(flickerIndex) !== "" ? captionShifted2.charAt(flickerIndex) : captionShifted2.charAt(0)) : (captionShifted.charAt(flickerIndex) !== "" ? captionShifted.charAt(flickerIndex) : captionShifted.charAt(0)))) : !pressed && symbolOnly ? flickerText : (flickerText.charAt(flickerIndex) !== "" ? flickerText.charAt(flickerIndex) : flickerText.charAt(0)))
+            color: !pressed || (flickerIndex == 0 || currentText.charAt(flickerIndex) == "")
+                ? Theme.primaryColor
+                : Theme.highlightColor
+            text: pressed && flickPopperConfig.value
+                ? currentText.charAt(0)
+                : (currentText.charAt(0) == " "
+                    ? ""
+                    : (symbolOnly && attributes.inSymView && !flickAssistConfig.value
+                        ? symView
+                        : (!portraitMode || !flickAssistConfig.value
+                            ? ((attributes.isShifted && !attributes.inSymView
+                            && !pressed) || symbolOnly
+                                ? currentText
+                                : currentText.charAt(flickerIndex) === ""
+                                    ? currentText.charAt(0)
+                                    : currentText.charAt(flickerIndex))
+                            : currentText.charAt(0))))
+
         }
         Text {
             id: secondaryLabel
@@ -92,7 +143,22 @@ KeyBase {
             font.pixelSize: !symbolOnly ? Theme.fontSizeExtraSmall : Theme.fontSizeSmall
             color: pressed ? Theme.highlightColor : Theme.primaryColor
             opacity: (!pressed && attributes.isShifted && captionShifted === " ") ? .8 : .6
-            text: !pressed && attributes.inSymView && symView.length > 0 ? (symbolOnly ? "" : symView.slice(1)) : (!pressed && attributes.isShifted && captionShifted === " " ? "Space" : "")
+            text: !pressed && attributes.inSymView && symView.length > 0
+                ? (flickAssistConfig.value || symbolOnly
+                    ? ""
+                    : symView.slice(1))
+                : (!pressed && attributes.isShifted && captionShifted === " "
+                    ? "Space"
+                    : "")
+        }
+    }
+
+    Repeater {
+        model: 4
+        AssistLabel {
+            visible: portraitMode && !pressed && flickAssistConfig.value
+            keyIndex: index + 1
+            labelText: currentText
         }
     }
 
@@ -101,12 +167,10 @@ KeyBase {
         anchors.right: parent.right
         visible: (separator === SeparatorState.AutomaticSeparator && implicitSeparator)
                  || separator === SeparatorState.VisibleSeparator
-//        visible: separator
     }
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: Theme.paddingSmall
         z: -1
         color: Theme.highlightBackgroundColor
         opacity: 0.5
@@ -126,4 +190,21 @@ KeyBase {
         }
     }
 
+    function updateKeyString() {
+        if (attributes.inSymView) {
+            currentText = symView
+            return
+        }
+
+        if (attributes.isShifted) {
+            if (textCaptState) {
+                currentText = captionShifted2
+            } else {
+                currentText = captionShifted
+            }
+            return
+        }
+
+        currentText = flickerText
+    }
 }

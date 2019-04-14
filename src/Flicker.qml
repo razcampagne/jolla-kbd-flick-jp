@@ -28,6 +28,7 @@
 
 import QtQuick 2.0
 import com.jolla.keyboard 1.0
+import Sailfish.Silica 1.0
 
 QtObject {
     id: flicker
@@ -42,7 +43,6 @@ QtObject {
     }
 
     function setIndex(point) {
-
         var flickerStart = keyboard.mapToItem(target, point.startX, point.startY)
         var flickerMoved = keyboard.mapToItem(target, point.x, point.y)
         var flickerKeySize = Math.floor(Math.max(target.height, target.width) + Math.min(target.height, target.width)) / 2
@@ -53,6 +53,10 @@ QtObject {
         var flickerKeyDiffX = Math.floor(Math.max(flickerKeySize, target.width) - Math.min(flickerKeySize, target.width)) / 2
         var flickerKeyDiffY = Math.floor(Math.max(flickerKeySize, target.height) - Math.min(flickerKeySize, target.height)) / 2
 
+        var oldIndex = target.flickerIndex
+        var oldChar = target.currentText.charAt(target.flickerIndex) === ""
+            ? target.currentText.charAt(0)
+            : target.currentText.charAt(target.flickerIndex)
         if (flickerMoved.y > 0-flickerKeyDiffY-flickerKeyOuterY && flickerMoved.y < target.height+flickerKeyDiffY+flickerKeyOuterY && flickerMoved.x < flickerStart.x && flickerStart.x - flickerMoved.x > flickerKeySize * 0.4) {
             target.flickerIndex = 1
         } else if (flickerMoved.y > 0-flickerKeyDiffY-flickerKeyOuterY && flickerMoved.y < target.height+flickerKeyDiffY+flickerKeyOuterY && flickerMoved.x > flickerStart.x && flickerMoved.x - flickerStart.x > flickerKeySize * 0.4){
@@ -65,9 +69,21 @@ QtObject {
             target.flickerIndex = 0
         }
 
+        if (target.flickerEnabled) {
+            for (var i = 0; i < 5 ; i++) {
+                flickerPoppers.itemAt(i).setup()
+            }
+        }
+
+        if (oldIndex !== target.flickerIndex
+            && oldChar !== target.currentText.charAt(target.flickerIndex)
+            && target.currentText.charAt(target.flickerIndex) !== "") {
+            SampleCache.play("/usr/share/sounds/jolla-ambient/stereo/keyboard_letter.wav")
+            buttonPressEffect.play()
+        }
+
         if (target.showPopper) {
             popper.setup()
         }
-
     }
 }
