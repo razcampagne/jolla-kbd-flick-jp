@@ -106,14 +106,13 @@ KeyBase {
             font.family: Theme.fontFamily
             font.pixelSize: !pressed && symbolOnly
                 ? Theme.fontSizeExtraSmall
-                : (!portraitMode || attributes.isShifted || attributes.inSymView
-                || !flickAssistConfig.value)
+                : !portraitMode || !flickAssistConfig.value
                     ? Theme.fontSizeLarge
-                    : (flickerIndex > 0
+                    : flickerIndex > 0
                         ? Theme.fontSizeExtraLarge
-                        : (!pressed
+                        : !pressed
                             ? Theme.fontSizeMedium
-                            : Theme.fontSizeHuge))
+                            : Theme.fontSizeHuge
             font.letterSpacing: (portraitMode === true && !attributes.isShifted && !attributes.inSymView && symbolOnly && flickerText.length > 3) ? -10 : 0
             color: !pressed || (flickerIndex == 0 || currentText.charAt(flickerIndex) == "")
                 ? Theme.primaryColor
