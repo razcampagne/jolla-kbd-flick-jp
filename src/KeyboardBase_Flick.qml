@@ -92,7 +92,7 @@ SwipeGestureArea {
 
     readonly property bool swipeGestureIsSafe: !releaseTimer.running
 
-    height: layout ? layout.height : 0
+    height: layout ? (portraitMode ? layout.height*1.25 : layout.height) : 0
     onLayoutChanged: if (layout) layout.parent = keyboard
     onPortraitModeChanged: cancelAllTouchPoints()
 
@@ -277,6 +277,7 @@ SwipeGestureArea {
                 popper.setActiveCell(point.x, point.y)
             } else if (flicker.enabled) {
                 flicker.setIndex(point)
+            }
             } else {
                 updatePressedKey(point)
             }

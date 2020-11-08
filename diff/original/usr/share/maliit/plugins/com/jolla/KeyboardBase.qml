@@ -92,7 +92,7 @@ SwipeGestureArea {
 
     readonly property bool swipeGestureIsSafe: !releaseTimer.running
 
-    height: layout ? layout.height : 0
+    height: layout ? (portraitMode ? layout.height*1.25 : layout.height) : 0
     onLayoutChanged: if (layout) layout.parent = keyboard
     onPortraitModeChanged: cancelAllTouchPoints()
 
